@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YEKA MedDikte — Tıbbi Ses Dikte</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏥</text></svg>">
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-brand">
+    <h1>🏥 YEKA <span>MedDikte</span></h1>
+  </div>
+  <div class="header-badge" id="conn-badge">Yerel Sistem</div>
+</div>
+
+<div class="main">
+
+  <div class="steps">
+    <div class="step active" id="step-1">1. Bilgi Gir</div>
+    <div class="step" id="step-2">2. Görüntü Analizi</div>
+    <div class="step" id="step-3">3. Dikte Et</div>
+    <div class="step" id="step-4">4. Düzenle & İndir</div>
+  </div>
+
+  <!-- ADIM 1: Bilgi Girişi -->
+  <div id="panel-1">
+    <div class="card">
+      <div class="card-title">📋 Rapor Bilgileri</div>
+      <div class="form-group">
+        <label>Rapor Tipi</label>
+        <select id="report-type">
+          <option value="kranial_mr">Kranial MR</option>
+          <option value="lomber_mr">Lomber MR</option>
+          <option value="akciger_grafi">Akciğer Grafisi (PA)</option>
+          <option value="toraks_bt">Toraks BT</option>
+          <option value="abdomen_usg">Abdomen USG</option>
+          <option value="genel">Genel Radyoloji Raporu</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Hasta Adı Soyadı</label>
+          <input type="text" id="patient-name" placeholder="Ahmet Yılmaz">
+        </div>
+        <div class="form-group">
+          <label>TC Kimlik No</label>
+          <input type="text" id="patient-tc" placeholder="12345678901" maxlength="11">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Doktor Adı</label>
+          <input type="text" id="doctor-name" placeholder="Dr. Ayşe Kaya">
+        </div>
+        <div class="form-group">
+          <label>Doktor Unvanı</label>
+          <input type="text" id="doctor-title" value="Uzm. Dr." placeholder="Uzm. Dr.">
+        </div>
+      </div>
+      <div class="btn-group" style="justify-content: flex-end">
+        <button class="btn btn-primary" onclick="goToStep(2)">Görüntü Yükle →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADIM 2: Görüntü Analizi -->
+  <div id="panel-2" class="hidden">
+    <div class="card">
+      <div class="card-title">🩻 Tıbbi Görüntü Analizi</div>
+      <div class="upload-area" id="upload-area" onclick="document.getElementById('image-input').click()"
+           ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+        <div class="upload-icon">🩻</div>
+        <div class="upload-text">Görüntüyü buraya sürükleyin veya tıklayın</div>
+        <div class="upload-hint">Röntgen, MR, BT, USG — JPEG, PNG, DICOM</div>
+        <input type="file" id="image-input" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
+      </div>
+
+      <div id="image-preview-area" class="hidden">
+        <img id="image-preview" src="" alt="Yüklenen görüntü">
+        <button class="btn btn-ghost btn-sm" onclick="clearImage()">✕ Kaldır</button>
+      </div>
+
+      <div id="ai-draft-area" class="hidden">
+        <div class="card-title" style="margin-top:16px">🤖 AI Bulgular Taslağı</div>
+        <div class="ai-draft-box" id="ai-draft"></div>
+      </div>
+
+      <div class="status-bar" id="status-bar-img"></div>
+
+      <div class="btn-group">
+        <button class="btn btn-ghost" onclick="goToStep(1)">← Geri</button>
+        <button class="btn btn-ghost" onclick="skipImage()">Görüntü yok, dikteye geç →</button>
+        <button class="btn btn-primary" id="analyze-btn" onclick="analyzeImage()" disabled>🔍 Analiz Et</button>
+        <button class="btn btn-success hidden" id="continue-btn" onclick="goToStep(3)">Dikteye Geç →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADIM 3: Dikte -->
+  <div id="panel-3" class="hidden">
+    <div id="ai-draft-reminder" class="hidden">
+      <div class="card ai-reminder-card">
+        <div class="card-title">🤖 AI Taslağı (görüntü analizinden)</div>
+        <div class="ai-draft-box" id="ai-draft-reminder-text"></div>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:8px">
+          Doktor bu bulguları tamamlamak veya düzeltmek için dikte yapabilir.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎤 Sesli Dikte</div>
+      <div class="mic-area">
+        <button class="mic-btn" id="mic-btn" onclick="toggleRecording()">🎤</button>
+        <div class="mic-status" id="mic-status">Mikrofona tıklayarak dikteye başlayın</div>
+        <div class="mic-timer hidden" id="mic-timer">00:00</div>
+        <div class="waveform hidden" id="waveform">
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📝 Canlı Transkript</div>
+      <div class="transcript-box empty" id="transcript">
+        Konuşmaya başladığınızda metin burada görünecek...
+      </div>
+      <div class="btn-group">
+        <button class="btn btn-ghost" onclick="goToStep(2)">← Geri</button>
+        <button class="btn btn-ghost" onclick="clearTranscript()">🗑️ Temizle</button>
+        <button class="btn btn-success" id="finalize-btn" onclick="finalize()" disabled>
+          ✅ Dikteyi Bitir & Düzelt
+        </button>
+      </div>
+      <div class="status-bar" id="status-bar"></div>
+    </div>
+  </div>
+
+  <!-- ADIM 4: Düzenleme & İndirme -->
+  <div id="panel-4" class="hidden">
+    <div class="card">
+      <div class="card-title">📄 Düzeltilmiş Rapor</div>
+      <textarea class="editor-area" id="editor" placeholder="Düzeltilmiş rapor burada görünecek..."></textarea>
+      <div class="btn-group">
+        <button class="btn btn-ghost" onclick="goToStep(3)">← Dikteye Dön</button>
+        <button class="btn btn-primary" onclick="downloadPDF()">📥 PDF İndir</button>
+        <button class="btn btn-ghost" onclick="copyText()">📋 Kopyala</button>
+        <button class="btn btn-ghost" onclick="newReport()">🆕 Yeni Rapor</button>
+      </div>
+      <div class="status-bar" id="status-bar-2"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

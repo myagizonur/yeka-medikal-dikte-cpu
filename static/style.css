@@ -1,0 +1,475 @@
+/* YEKA MedDikte — Tıbbi Dikte Arayüzü (Karanlık Mod) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg: #0d1117;
+  --bg-card: #161b22;
+  --bg-input: #0d1117;
+  --border: #30363d;
+  --border-focus: #58a6ff;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --text-muted: #6e7681;
+  --accent: #58a6ff;
+  --accent-dim: rgba(88,166,255,0.15);
+  --green: #3fb950;
+  --green-dim: rgba(63,185,80,0.15);
+  --red: #f85149;
+  --red-dim: rgba(248,81,73,0.15);
+  --yellow: #d29922;
+  --purple: #bc8cff;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+/* ── Header ── */
+.header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-brand h1 {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.header-brand span { color: var(--accent); }
+
+.header-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--green-dim);
+  color: var(--green);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.header-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+}
+
+/* ── Main Layout ── */
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* ── Card ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+/* ── Form ── */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.form-group { margin-bottom: 12px; }
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+
+.form-group input, .form-group select {
+  width: 100%;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: var(--text);
+  font-family: var(--font);
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+/* ── Mikrofon Butonu ── */
+.mic-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 0;
+}
+
+.mic-btn {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.mic-btn:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-dim);
+}
+
+.mic-btn.recording {
+  border-color: var(--red);
+  background: var(--red-dim);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(248,81,73,0.4); }
+  50% { box-shadow: 0 0 0 15px rgba(248,81,73,0); }
+}
+
+.mic-status {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.mic-timer {
+  font-family: 'Inter', monospace;
+  font-size: 1.5rem;
+  font-weight: 300;
+  color: var(--text);
+  margin-top: 8px;
+}
+
+/* ── Transkript Alanı ── */
+.transcript-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.transcript-box.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Editör ── */
+.editor-area {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  min-height: 250px;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text);
+  font-family: var(--font);
+  resize: vertical;
+}
+
+.editor-area:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+/* ── Butonlar ── */
+.btn {
+  font-family: var(--font);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.btn-primary:hover {
+  background: #4c9aed;
+  box-shadow: 0 0 12px var(--accent-dim);
+}
+
+.btn-success {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+
+.btn-success:hover { background: #2ea043; }
+
+.btn-danger {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+.btn-danger:hover { background: #da3633; }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+}
+
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: var(--text-dim);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+/* ── Status bar ── */
+.status-bar {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  margin-top: 12px;
+  display: none;
+}
+
+.status-bar.visible { display: flex; align-items: center; gap: 8px; }
+.status-bar.info { background: var(--accent-dim); color: var(--accent); }
+.status-bar.success { background: var(--green-dim); color: var(--green); }
+.status-bar.error { background: var(--red-dim); color: var(--red); }
+
+/* ── Loading ── */
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Waveform ── */
+.waveform {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 40px;
+  margin-top: 12px;
+}
+
+.waveform .bar {
+  width: 4px;
+  background: var(--red);
+  border-radius: 2px;
+  animation: wave 0.8s ease-in-out infinite;
+}
+
+.waveform .bar:nth-child(1) { animation-delay: 0s; height: 10px; }
+.waveform .bar:nth-child(2) { animation-delay: 0.1s; height: 20px; }
+.waveform .bar:nth-child(3) { animation-delay: 0.2s; height: 30px; }
+.waveform .bar:nth-child(4) { animation-delay: 0.3s; height: 20px; }
+.waveform .bar:nth-child(5) { animation-delay: 0.4s; height: 25px; }
+.waveform .bar:nth-child(6) { animation-delay: 0.5s; height: 15px; }
+.waveform .bar:nth-child(7) { animation-delay: 0.6s; height: 20px; }
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.5); }
+  50% { transform: scaleY(1.5); }
+}
+
+/* ── Steps ── */
+.steps {
+  display: flex;
+  gap: 0;
+  margin-bottom: 24px;
+}
+
+.step {
+  flex: 1;
+  text-align: center;
+  padding: 12px 8px;
+  border-bottom: 2px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.step.active {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+.step.done {
+  border-bottom-color: var(--green);
+  color: var(--green);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .form-row { grid-template-columns: 1fr; }
+  .main { padding: 12px; }
+  .mic-btn { width: 80px; height: 80px; font-size: 2rem; }
+}
+
+/* ── Görüntü Yükleme ── */
+.upload-area {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.upload-area:hover, .upload-area.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.upload-icon { font-size: 3rem; margin-bottom: 12px; }
+
+.upload-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.upload-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+#image-preview-area {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+#image-preview {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  object-fit: contain;
+  background: #000;
+  flex: 1;
+}
+
+.btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+
+.ai-draft-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  border-left: 3px solid var(--accent);
+}
+
+.ai-reminder-card {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  margin-bottom: 16px;
+}
+
+/* ── Steps (4 adım) ── */
+.steps { display: flex; gap: 0; margin-bottom: 24px; }
+
+.step {
+  flex: 1;
+  text-align: center;
+  padding: 12px 6px;
+  border-bottom: 2px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.step.active { border-bottom-color: var(--accent); color: var(--accent); }
+.step.done   { border-bottom-color: var(--green);  color: var(--green); }
+
+.hidden { display: none !important; }

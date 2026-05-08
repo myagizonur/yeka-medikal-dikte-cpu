@@ -26,19 +26,30 @@ load_dotenv()
 
 LOGO_PATH = os.path.join(os.path.dirname(__file__), "static", "uludag_logo.png")
 
-# Arial — Türkçe karakter desteği için TTF font kaydı
-_FONT_DIR = "/usr/share/fonts/truetype/liberation"
-pdfmetrics.registerFont(TTFont("Arial",            f"{_FONT_DIR}/LiberationSans-Regular.ttf"))
-pdfmetrics.registerFont(TTFont("Arial-Bold",       f"{_FONT_DIR}/LiberationSans-Bold.ttf"))
-pdfmetrics.registerFont(TTFont("Arial-Italic",     f"{_FONT_DIR}/LiberationSans-Italic.ttf"))
-pdfmetrics.registerFont(TTFont("Arial-BoldItalic", f"{_FONT_DIR}/LiberationSans-BoldItalic.ttf"))
-pdfmetrics.registerFontFamily(
-    "Arial",
-    normal="Arial",
-    bold="Arial-Bold",
-    italic="Arial-Italic",
-    boldItalic="Arial-BoldItalic",
-)
+# Türkçe karakter desteği — Liberation Sans dene, yoksa Helvetica
+def _register_fonts():
+    for d in ["/usr/share/fonts/truetype/liberation", "/usr/share/fonts/liberation",
+              "/System/Library/Fonts/Supplemental"]:
+        try:
+            files = {
+                "Arial":            ("LiberationSans-Regular.ttf",    "Arial.ttf"),
+                "Arial-Bold":       ("LiberationSans-Bold.ttf",       "Arial Bold.ttf"),
+                "Arial-Italic":     ("LiberationSans-Italic.ttf",     "Arial Italic.ttf"),
+                "Arial-BoldItalic": ("LiberationSans-BoldItalic.ttf", "Arial Bold Italic.ttf"),
+            }
+            for name, fnames in files.items():
+                for fname in fnames:
+                    path = os.path.join(d, fname)
+                    if os.path.exists(path):
+                        pdfmetrics.registerFont(TTFont(name, path))
+                        break
+            pdfmetrics.registerFontFamily("Arial", normal="Arial", bold="Arial-Bold",
+                                          italic="Arial-Italic", boldItalic="Arial-BoldItalic")
+            return
+        except Exception:
+            continue
+
+_register_fonts()
 
 # Kurumsal renkler (Uludağ Üniversitesi lacivert + turkuaz)
 NAVY   = HexColor("#1a2456")

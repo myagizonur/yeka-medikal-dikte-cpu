@@ -27,11 +27,11 @@ load_dotenv()
 LOGO_PATH = os.path.join(os.path.dirname(__file__), "static", "uludag_logo.png")
 
 # Arial — Türkçe karakter desteği için TTF font kaydı
-_FONT_DIR = "/System/Library/Fonts/Supplemental"
-pdfmetrics.registerFont(TTFont("Arial",            f"{_FONT_DIR}/Arial.ttf"))
-pdfmetrics.registerFont(TTFont("Arial-Bold",       f"{_FONT_DIR}/Arial Bold.ttf"))
-pdfmetrics.registerFont(TTFont("Arial-Italic",     f"{_FONT_DIR}/Arial Italic.ttf"))
-pdfmetrics.registerFont(TTFont("Arial-BoldItalic", f"{_FONT_DIR}/Arial Bold Italic.ttf"))
+_FONT_DIR = "/usr/share/fonts/truetype/liberation"
+pdfmetrics.registerFont(TTFont("Arial",            f"{_FONT_DIR}/LiberationSans-Regular.ttf"))
+pdfmetrics.registerFont(TTFont("Arial-Bold",       f"{_FONT_DIR}/LiberationSans-Bold.ttf"))
+pdfmetrics.registerFont(TTFont("Arial-Italic",     f"{_FONT_DIR}/LiberationSans-Italic.ttf"))
+pdfmetrics.registerFont(TTFont("Arial-BoldItalic", f"{_FONT_DIR}/LiberationSans-BoldItalic.ttf"))
 pdfmetrics.registerFontFamily(
     "Arial",
     normal="Arial",

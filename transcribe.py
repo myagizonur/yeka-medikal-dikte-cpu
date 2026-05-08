@@ -62,7 +62,12 @@ def transcribe_audio(audio_data: bytes, report_type: str = "genel") -> str:
                 tmp_path,
                 language="tr",
                 initial_prompt=prompt,
-                vad_filter=False,
+                vad_filter=True,
+                vad_parameters={
+                    "min_silence_duration_ms": 200,
+                    "speech_pad_ms": 400,
+                    "threshold": 0.3,
+                },
             )
             text = " ".join(s.text.strip() for s in segments).strip()
         logger.info(f"📝 STT ({info.duration:.1f}s ses): {text[:100]}...")

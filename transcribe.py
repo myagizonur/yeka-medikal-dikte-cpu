@@ -62,14 +62,19 @@ def transcribe_audio(audio_data: bytes, report_type: str = "genel") -> str:
                 tmp_path,
                 language="tr",
                 initial_prompt=prompt,
-                vad_filter=True,
-                vad_parameters={
-                    "min_silence_duration_ms": 200,
-                    "speech_pad_ms": 400,
-                    "threshold": 0.3,
-                },
+                vad_filter=False,
             )
             text = " ".join(s.text.strip() for s in segments).strip()
+
+        # Whisper halüsinasyonlarını filtrele
+        _hallucinations = [
+            "izlediğiniz için teşekkür", "teşekkür ederim", "teşekkürler",
+            "abone ol", "like", "subscribe", "sizi dinliyorum",
+        ]
+        if any(h in text.lower() for h in _hallucinations):
+            logger.warning(f"⚠️ Halüsinasyon tespit edildi, atlandı: {text[:60]}")
+            return ""
+
         logger.info(f"📝 STT ({info.duration:.1f}s ses): {text[:100]}...")
         return text
     finally:

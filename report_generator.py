@@ -26,30 +26,31 @@ load_dotenv()
 
 LOGO_PATH = os.path.join(os.path.dirname(__file__), "static", "uludag_logo.png")
 
-# Türkçe karakter desteği — Liberation Sans dene, yoksa Helvetica
-def _register_fonts():
-    for d in ["/usr/share/fonts/truetype/liberation", "/usr/share/fonts/liberation",
-              "/System/Library/Fonts/Supplemental"]:
-        try:
-            files = {
-                "Arial":            ("LiberationSans-Regular.ttf",    "Arial.ttf"),
-                "Arial-Bold":       ("LiberationSans-Bold.ttf",       "Arial Bold.ttf"),
-                "Arial-Italic":     ("LiberationSans-Italic.ttf",     "Arial Italic.ttf"),
-                "Arial-BoldItalic": ("LiberationSans-BoldItalic.ttf", "Arial Bold Italic.ttf"),
-            }
-            for name, fnames in files.items():
-                for fname in fnames:
-                    path = os.path.join(d, fname)
-                    if os.path.exists(path):
-                        pdfmetrics.registerFont(TTFont(name, path))
-                        break
-            pdfmetrics.registerFontFamily("Arial", normal="Arial", bold="Arial-Bold",
-                                          italic="Arial-Italic", boldItalic="Arial-BoldItalic")
-            return
-        except Exception:
-            continue
+# Font yükleme — Liberation Sans (Türkçe destekli) veya Helvetica fallback
+FONT_NORMAL = "Helvetica"
+FONT_BOLD   = "Helvetica-Bold"
+FONT_ITALIC = "Helvetica-Oblique"
 
-_register_fonts()
+_font_candidates = [
+    ("/usr/share/fonts/opentype/liberation",  "LiberationSans-Regular.ttf", "LiberationSans-Bold.ttf", "LiberationSans-Italic.ttf"),
+    ("/usr/share/fonts/truetype/liberation",  "LiberationSans-Regular.ttf", "LiberationSans-Bold.ttf", "LiberationSans-Italic.ttf"),
+    ("/usr/share/fonts/liberation",           "LiberationSans-Regular.ttf", "LiberationSans-Bold.ttf", "LiberationSans-Italic.ttf"),
+    ("/System/Library/Fonts/Supplemental",    "Arial.ttf",                  "Arial Bold.ttf",          "Arial Italic.ttf"),
+]
+
+for _d, _r, _b, _i in _font_candidates:
+    if os.path.exists(os.path.join(_d, _r)):
+        try:
+            pdfmetrics.registerFont(TTFont("_AppFont",       os.path.join(_d, _r)))
+            pdfmetrics.registerFont(TTFont("_AppFont-Bold",  os.path.join(_d, _b)))
+            pdfmetrics.registerFont(TTFont("_AppFont-Italic",os.path.join(_d, _i)))
+            pdfmetrics.registerFontFamily("_AppFont", normal="_AppFont", bold="_AppFont-Bold", italic="_AppFont-Italic")
+            FONT_NORMAL = "_AppFont"
+            FONT_BOLD   = "_AppFont-Bold"
+            FONT_ITALIC = "_AppFont-Italic"
+            break
+        except Exception:
+            pass
 
 # Kurumsal renkler (Uludağ Üniversitesi lacivert + turkuaz)
 NAVY   = HexColor("#1a2456")
@@ -65,21 +66,21 @@ def _styles():
     s.add(ParagraphStyle(
         "HospitalName",
         fontSize=13,
-        fontName="Arial-Bold",
+        fontName=FONT_BOLD,
         textColor=NAVY,
         spaceAfter=1,
     ))
     s.add(ParagraphStyle(
         "DeptName",
         fontSize=9,
-        fontName="Arial",
+        fontName=FONT_NORMAL,
         textColor=GRAY,
         spaceAfter=2,
     ))
     s.add(ParagraphStyle(
         "ReportTitle",
         fontSize=12,
-        fontName="Arial-Bold",
+        fontName=FONT_BOLD,
         textColor=white,
         alignment=TA_CENTER,
         spaceAfter=0,
@@ -88,19 +89,19 @@ def _styles():
     s.add(ParagraphStyle(
         "FieldLabel",
         fontSize=8,
-        fontName="Arial-Bold",
+        fontName=FONT_BOLD,
         textColor=NAVY,
     ))
     s.add(ParagraphStyle(
         "FieldValue",
         fontSize=9,
-        fontName="Arial",
+        fontName=FONT_NORMAL,
         textColor=DGRAY,
     ))
     s.add(ParagraphStyle(
         "SectionHead",
         fontSize=10,
-        fontName="Arial-Bold",
+        fontName=FONT_BOLD,
         textColor=NAVY,
         spaceBefore=10,
         spaceAfter=4,
@@ -108,7 +109,7 @@ def _styles():
     s.add(ParagraphStyle(
         "BodyText2",
         fontSize=10,
-        fontName="Arial",
+        fontName=FONT_NORMAL,
         leading=16,
         textColor=DGRAY,
         spaceAfter=4,
@@ -116,21 +117,21 @@ def _styles():
     s.add(ParagraphStyle(
         "FooterText",
         fontSize=7,
-        fontName="Arial",
+        fontName=FONT_NORMAL,
         textColor=GRAY,
         alignment=TA_CENTER,
     ))
     s.add(ParagraphStyle(
         "DoctorName",
         fontSize=10,
-        fontName="Arial-Bold",
+        fontName=FONT_BOLD,
         textColor=DGRAY,
         alignment=TA_LEFT,
     ))
     s.add(ParagraphStyle(
         "DoctorTitle",
         fontSize=8,
-        fontName="Arial",
+        fontName=FONT_NORMAL,
         textColor=GRAY,
         alignment=TA_LEFT,
     ))
